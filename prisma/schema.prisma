@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  email      String      @unique
+  password   String
+  firstname  String
+  lastname   String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  isAdmin    Boolean     @default(false)
+  attendances Attendance[]
+  attendanceCorrections      AttendanceCorrection[]
+  reviewedAttendanceCorrections AttendanceCorrection[] @relation("reviewer")
+}
+
+model Attendance {
+  id         Int      @id @default(autoincrement())
+  date       DateTime
+  startTime  DateTime
+  endTime    DateTime?
+  breaks     Int      @default(0)
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  correctionRequested Boolean  @default(false)
+  attendanceCorrection       AttendanceCorrection[]
+
+  @@map("attendances")
+}
+
+model AttendanceCorrection {
+  id                  Int       @id @default(autoincrement())
+  userId              Int
+  user                User      @relation(fields: [userId], references: [id])
+  originalAttendanceId Int
+  originalAttendance  Attendance @relation(fields: [originalAttendanceId], references: [id])
+  requestedChange     String
+  reason              String
+  status              String
+  createdAt           DateTime  @default(now())
+  reviewedAt          DateTime?
+  reviewedBy          Int?
+  reviewer            User?     @relation("reviewer", fields: [reviewedBy], references: [id])
+}
