@@ -1,16 +1,24 @@
-import { fetchUsername } from "@/lib/actions";
-import { authOptions } from "@/auth/auth-config";
-import { getServerSession } from "next-auth";
-import { Session } from "next-auth";
+import { fetchUserFullname } from "@/lib/actions";
+import { displayUserAttendance } from "@/lib/actions";
+import { fetchUserId } from "@/lib/actions";
+import { fetchUserEmail } from "@/lib/actions";
+import { userInfo } from "os";
 
 export default async function Mypage() {
-    const session : Session | null | undefined = await getServerSession(authOptions);
-    console.log(session)
-    return (
+  const userAllAttendance = await displayUserAttendance()
+  if (userAllAttendance) {
+        return (
       <div>
-      <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      </main>
+        Data fetched
       </div>
     );
+  } else {
+    return (
+      <div>
+        undefined
+      </div>
+    );
+  }
+
   }
   

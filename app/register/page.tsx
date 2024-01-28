@@ -1,7 +1,7 @@
 import LoginSignin from "@/components/loginsignup";
 import Link from "next/link";
 
-export default function Login() {
+export default function Register() {
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-gray-50">
       <div className="z-10 w-full max-w-md overflow-hidden rounded-2xl border border-blue-200 shadow-xl">
