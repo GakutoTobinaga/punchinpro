@@ -74,7 +74,7 @@ export const displayUserAttendance = async () => {
         const userAllAttendance = await prisma.attendance.findMany({
           where: { userId: Number(userId) }, // 必要に応じて型変換
           select: {
-            id: true,
+            userId: true,
             date: true,
             startTime: true,
             endTime: true,
@@ -89,4 +89,19 @@ export const displayUserAttendance = async () => {
       return undefined;
     }
   };
-  
+
+export const updateUserAttendance = async () => {
+  const updateAttendance = await prisma.user.update({
+    where: {
+      email: 'viola@prisma.io',
+    },
+    data: {
+      email: 'Viola@gmail.com',
+    },
+  })
+  if (updateAttendance) {
+    return true
+  } else {
+  return false
+}
+}
