@@ -74,7 +74,6 @@ export const displayUserAttendance = async () => {
         const userAllAttendance = await prisma.attendance.findMany({
           where: { userId: Number(userId) }, // 必要に応じて型変換
           select: {
-            userId: true,
             date: true,
             startTime: true,
             endTime: true,

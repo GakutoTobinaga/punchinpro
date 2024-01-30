@@ -1,45 +1,35 @@
-import { fetchUserFullname } from "@/lib/actions";
-import { displayUserAttendance } from "@/lib/actions";
-import { fetchUserId } from "@/lib/actions";
-import { fetchUserEmail } from "@/lib/actions";
-import { userInfo } from "os";
+"use client"
+import React, { useEffect, useState } from 'react';
+import UserAllAttendance from '@/components/UserAllAttendance';
+import { displayUserAttendance } from '@/lib/actions';
+import { AttendanceData } from '@/lib/types';
 
-export default async function Mypage() {
-  const userAllAttendance = await displayUserAttendance()
-  if (userAllAttendance) {
-    userAllAttendance.forEach(attendance => {
-      // ここで各要素に対して何か操作を行う
-      console.log(`Date: ${attendance.date}`);
-      console.log(`Start Time: ${attendance.startTime}`);
-      console.log(`End Time: ${attendance.endTime}`);
-      console.log(`User ID: ${attendance.userId}`);
-  });
-        return (
-      <div>
-        {userAllAttendance.length >= 1 ? (
-                <div>
-                    <h2>DATA HAS BEEN FETCHED</h2>
-                    {userAllAttendance.map((attendance, index) => (
-                        <div key={index}>
-                            <p>Date: {attendance.date.toString()}</p>
-                            <p>Start Time: {attendance.startTime.toString()}</p>
-                            <p>End Time: {attendance.endTime ? attendance.endTime.toString() : 'N/A'}</p>
-                            <p>User ID: {attendance.userId}</p>
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <p>No attendance data available.</p>
-            )}
-      </div>
-    );
-  } else {
+export default function Mypage() {
+  const [userAllAttendance, setUserAllAttendance] = useState<AttendanceData[]>([]);
+
+  const fetchData = async () => {
+    const data = await displayUserAttendance();
+    setUserAllAttendance(data);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []); // マウント時にデータを取得
+
+  // userAllAttendance 配列がデータを含むか確認
+  if (userAllAttendance === null) {
+    return <div>Loading...</div>;
+  }
+
+  // データがある場合にコンポーネントを表示
+  if (userAllAttendance.length > 0) {
     return (
       <div>
-        undefined
+        <UserAllAttendance data={userAllAttendance} />
       </div>
     );
   }
 
-  }
-  
+  // データがない場合の表示
+  return <div>No attendance data available.</div>;
+}
