@@ -12,7 +12,7 @@ const jestConfig: JestConfigWithTsJest = {
   testMatch: ['<rootDir>/test/**/*.test.ts'],
   modulePaths: ['<rootDir>/'],
   moduleNameMapper: {
-    '^@/(.+)': '<rootDir>/components/$1',
+    '^@/(.+)': '<rootDir>/$1',
   },
   moduleDirectories: ['node_modules', '<rootDir>'],
 };
