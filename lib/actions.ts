@@ -165,3 +165,19 @@ export const updateUserAttendance = async () => {
   return false
 }
 }
+
+export const fetchAllUser = async () => {
+  try {
+    const allUser = await prisma.attendance.findMany({
+      orderBy: {
+        userId: 'desc',
+      },
+    });
+    if (allUser.length === 0) {
+      throw new Error(`Userに関する出勤記録が見つかりません。`);
+    }
+    return allUser;
+  } catch (error) {
+    console.error(`error has occured.`);
+  }
+};
