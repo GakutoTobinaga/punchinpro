@@ -8,6 +8,7 @@ import {
     TableRow,
     Text,
     Title,
+    Divider,
   } from "@tremor/react";
   
   type AttendanceData = {
@@ -20,7 +21,7 @@ import {
     data: AttendanceData[];
   };
   
-  const AttendanceTable: React.FC<AttendanceTableProps> = ({ data }) => (
+  const AttendanceTable = ({ data }: {data:any}) => (
     <Card>
       <Title>Your Attendance Data</Title>
       <Table className="mt-5">
@@ -37,21 +38,19 @@ import {
               <TableCell>{formatDateString(item.date)}</TableCell>
               {/* StartTimeを"00:00"の形式に変更 */}
               <TableCell>
-  {typeof item.startTime === 'string' ? (
-    new Date(item.startTime).toLocaleTimeString()
-  ) : (
-    item.startTime instanceof Date ? item.startTime.toLocaleTimeString() : 'N/A'
-  )}
-</TableCell>
-<TableCell>
-  {typeof item.endTime === 'string' ? (
-    new Date(item.endTime).toLocaleTimeString()
-  ) : (
-    item.endTime instanceof Date ? item.endTime.toLocaleTimeString() : 'N/A'
-  )}
-</TableCell>
-
-
+                {typeof item.startTime === 'string' ? (
+                  new Date(item.startTime).toLocaleTimeString()
+                ) : (
+                  item.startTime instanceof Date ? item.startTime.toLocaleTimeString() : 'N/A'
+                )}
+              </TableCell>
+              <TableCell>
+                {typeof item.endTime === 'string' ? (
+                  new Date(item.endTime).toLocaleTimeString()
+                ) : (
+                  item.endTime instanceof Date ? item.endTime.toLocaleTimeString() : 'N/A'
+                )}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

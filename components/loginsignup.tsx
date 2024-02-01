@@ -1,16 +1,31 @@
 "use client";
 
-import { useState } from "react";
 import { signIn } from "next-auth/react";
 import LoadingDots from "./loading/loading-dots";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@tremor/react";
+import { fetchUserId } from "@/lib/actions";
+import { useEffect, useState } from "react";
+import { fetchUserEmail,  } from "@/lib/actions";
+import toast from "react-hot-toast";
 
 export default function LoginSignin({ type }: { type: "login" | "register" }) {
+  const [userId, setUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
+  useEffect(() => {
+    const getUserData = async () => {
+      const userEmail = await fetchUserEmail();
+      if (userEmail) {
+        const fetchedUserId : number | null= await fetchUserId(userEmail);
+        if (fetchedUserId) {
+            setUserId(fetchedUserId);
+        }
+      }
+    };
+    getUserData();
+  }, []);
   return (
     <form
       onSubmit={(e) => {
@@ -30,10 +45,9 @@ export default function LoginSignin({ type }: { type: "login" | "register" }) {
               console.log("login failed")
               setLoading(false);
             } else {
-              // 無事に成功したら↓、ルートにリダイレクト
-              console.log("login succeed")
               router.refresh();
-              router.push("/");
+              toast.success("Login success")
+              window.location.replace(`/`);
             }
           });
         } else {

@@ -13,3 +13,10 @@ export type AttendanceData = {
 export type AttendanceTableProps = {
     data: AttendanceData[];
   };
+
+export type UserData = {
+    id: number;
+    firstname: string;
+    lastname: string;
+  };
+  

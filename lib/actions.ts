@@ -18,30 +18,29 @@ export const fetchUserEmail = async () => {
     }
   };
 
-export const fetchUserFullname = async () => {
-    const userEmail = await fetchUserEmail()
-    if (userEmail) {
-        const userFullname = await prisma.user.findUnique({
-            where: { email: userEmail},
-            select: {
-              firstname: true,
-              lastname: true,
-            }
+  export const fetchUserFullname = async (): Promise<{ firstname: string; lastname: string } | null> => {
+    const userEmail = await fetchUserEmail();
+    if (!userEmail) return null;
+  
+    const userInfo = await prisma.user.findUnique({
+      where: { email: userEmail },
+      select: { firstname: true, lastname: true },
     });
-        return userFullname
-    } else {
-        return undefined;
-    }
-}
+  
+    return userInfo;
+  };
 
-export const fetchUserId = async (userEmail:string) => {
+export const fetchUserId = async (userEmail:string): Promise<number | null> => {
     const userId = await prisma.user.findUnique({
         where: { email: userEmail},
         select: {
           id: true,
         }
     });
-    return userId ? userId.id : null;
+    if (userId){
+      return userId?.id
+    }
+    return null;
 }
 
 export const recordAttendance = async (userId: number): Promise<boolean> => {
@@ -149,6 +148,23 @@ export const displayUserAttendance = async () => {
       return undefined;
     }
   };
+  export const displayUserAttendance2 = async (userId : number) => {
+    try {
+        const userAllAttendance = await prisma.attendance.findMany({
+          where: { userId: Number(userId) }, // 必要に応じて型変換
+          select: {
+            date: true,
+            startTime: true,
+            endTime: true,
+          }
+        });
+        return userAllAttendance;
+    } catch (error) {
+      console.error('Error in displayUserAttendance:', error);
+      return undefined;
+    }
+  };
+
 
 export const updateUserAttendance = async () => {
   const updateAttendance = await prisma.user.update({
@@ -179,5 +195,24 @@ export const fetchAllUser = async () => {
     return allUser;
   } catch (error) {
     console.error(`error has occured.`);
+  }
+};
+
+export const fetchAllUser2 = async () => {
+  try {
+    const allUser = await prisma.user.findMany({
+      select: {
+        id: true,
+        firstname: true,
+        lastname: true,
+      },
+    });
+    if (allUser.length === 0) {
+      throw new Error(`ユーザーが見つかりません。`);
+    }
+    return allUser;
+  } catch (error) {
+    console.error(`error has occured.`);
+    throw error;
   }
 };

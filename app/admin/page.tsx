@@ -1,36 +1,47 @@
 "use client"
 import React, { useEffect, useState } from 'react';
 import UserAllAttendance from '@/components/UserAllAttendance';
+import AllUserInfos from '@/components/AllUserInfos';
 import { AttendanceData } from '@/lib/types';
-import { fetchAllUser } from '@/lib/actions';
+import { fetchAllUser, fetchAllUser2 } from '@/lib/actions';
+import toast from 'react-hot-toast';
+import type { UserData } from '@/lib/types';
 
 export default function AdminPage() {
-  const [userAllAttendance, setUserAllAttendance] = useState<AttendanceData[]>([]);
+  const [userAllDatas, setUserAllDatas] = useState<AttendanceData[]>([]);
+  const [userAllDatas2, setUserAllDatas2] = useState<UserData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const fetchData = async () => {
-    const data : any = await fetchAllUser();
-    setUserAllAttendance(data);
-    console.log(data)
+    try {
+      setIsLoading(true)
+      const data : any = await fetchAllUser();
+      const data2 : UserData[] = await fetchAllUser2();
+      setUserAllDatas(data);
+      setUserAllDatas2(data2);
+      toast.success("Data has been fetched")
+    } catch (error) {
+      toast.error("Failed to fetch data.")
+    } finally {
+      setIsLoading(false)
+    }
   };
 
   useEffect(() => {
     fetchData();
   }, []); // マウント時にデータを取得
 
-  // userAllAttendance 配列がデータを含むか確認
-  if (userAllAttendance === null) {
+  if(isLoading) {
     return <div>Loading...</div>;
   }
-
   // データがある場合にコンポーネントを表示
-  if (userAllAttendance.length > 0) {
+  if (userAllDatas.length > 0) {
     return (
       <div>
-        <UserAllAttendance data={userAllAttendance} />
+        <div>
+          <AllUserInfos data={userAllDatas2}/>
+        </div>
       </div>
     );
   }
-
-  // データがない場合の表示
-  return <div>No attendance data available.</div>;
 }
