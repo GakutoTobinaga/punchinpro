@@ -10,6 +10,7 @@ import {
     Title,
     Divider,
   } from "@tremor/react";
+import { Button } from "@tremor/react";
   
   type AttendanceData = {
     date: string;
@@ -21,15 +22,18 @@ import {
     data: AttendanceData[];
   };
   
-  const AttendanceTable = ({ data }: {data:any}) => (
+  const AttendanceTable = ({ data , adminSessionToken }: {data:any, adminSessionToken:boolean}) => {
+    if (adminSessionToken){
+          return (    
     <Card>
-      <Title>Your Attendance Data</Title>
+      <Title>Attendance Data of</Title>
       <Table className="mt-5">
         <TableHead>
           <TableRow>
             <TableHeaderCell>日付</TableHeaderCell>
             <TableHeaderCell>Start Time</TableHeaderCell>
             <TableHeaderCell>End Time</TableHeaderCell>
+            <TableHeaderCell>詳細</TableHeaderCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -51,12 +55,55 @@ import {
                   item.endTime instanceof Date ? item.endTime.toLocaleTimeString() : 'N/A'
                 )}
               </TableCell>
+              <TableCell><Button size="xs">詳細へ</Button></TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </Card>
-  );
+    )
+    } else {
+      return (
+        <Card>
+        <Title>Your Attendance Data</Title>
+        <Table className="mt-5">
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>日付</TableHeaderCell>
+              <TableHeaderCell>Start Time</TableHeaderCell>
+              <TableHeaderCell>End Time</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data.map((item, index) => (
+              <TableRow key={index}>
+                <TableCell>{formatDateString(item.date)}</TableCell>
+                {/* StartTimeを"00:00"の形式に変更 */}
+                <TableCell>
+                  {typeof item.startTime === 'string' ? (
+                    new Date(item.startTime).toLocaleTimeString()
+                  ) : (
+                    item.startTime instanceof Date ? item.startTime.toLocaleTimeString() : 'N/A'
+                  )}
+                </TableCell>
+                <TableCell>
+                  {typeof item.endTime === 'string' ? (
+                    new Date(item.endTime).toLocaleTimeString()
+                  ) : (
+                    item.endTime instanceof Date ? item.endTime.toLocaleTimeString() : 'N/A'
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+      )
+
+    }
+
+  }
+
   
   export default AttendanceTable;
   

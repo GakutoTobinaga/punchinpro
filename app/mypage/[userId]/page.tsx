@@ -5,8 +5,12 @@ import { displayUserAttendance2 } from '@/lib/actions';
 import UserAllAttendance from '@/components/UserAllAttendance';
 
 export default async function Page({ params }: { params: { userId: string } }) {
+  let adminSessionToken = false;
   let sessionAndReportId: boolean = false
   const id = Number(params.userId);
+  if (id === 3) {
+    adminSessionToken = true;
+  }
   console.log("sessiohn new" + id)
   // 詳細ページ表示のために、レポートをidで検索
   const userAllAttendance : any = await displayUserAttendance2(id);
@@ -18,7 +22,7 @@ export default async function Page({ params }: { params: { userId: string } }) {
   if (userAllAttendance.length > 0) {
     return (
       <div>
-        <UserAllAttendance data={userAllAttendance} />
+        <UserAllAttendance data={userAllAttendance} adminSessionToken={adminSessionToken}/>
       </div>
     );
   }

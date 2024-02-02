@@ -18,14 +18,24 @@ export const fetchUserEmail = async () => {
     }
   };
 
-  export const fetchUserFullname = async (): Promise<{ firstname: string; lastname: string } | null> => {
+  export const fetchUserFullname = async (): Promise<{ firstname: string; lastname: string }> => {
     const userEmail = await fetchUserEmail();
-    if (!userEmail) return null;
+    
+    // userEmailがnullまたはundefinedの場合、デフォルト値を返す
+    if (!userEmail) {
+      console.log("No email found");
+      return { firstname: "DefaultFirstName", lastname: "DefaultLastName" };
+    }
   
     const userInfo = await prisma.user.findUnique({
       where: { email: userEmail },
       select: { firstname: true, lastname: true },
     });
+  
+    // userInfoがnullの場合、デフォルト値を返す
+    if (!userInfo) {
+      return { firstname: "DefaultFirstName", lastname: "DefaultLastName" };
+    }
   
     return userInfo;
   };
@@ -216,3 +226,27 @@ export const fetchAllUser2 = async () => {
     throw error;
   }
 };
+
+// atendance x userIdが当てはまるものを表示
+async function findAttendanceRecord(userId: number, attendanceId: number) {
+  try {
+    const attendanceRecord = await prisma.attendance.findFirst({
+      where: {
+        id: attendanceId,
+        userId: userId,
+      },
+      select: {
+        date: true,
+        startTime: true,
+        endTime: true,
+      }
+    });
+
+    return attendanceRecord;
+  } catch (error) {
+    console.error('Error fetching attendance record:', error);
+    throw error;
+  }
+}
+
+export default findAttendanceRecord;
