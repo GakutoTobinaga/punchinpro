@@ -1,24 +1,56 @@
 'use client';
-import { usePathname } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
+import { fetchUserId } from '@/lib/actions';
+import { fetchUserEmail } from '@/lib/actions';
+import { useState, useEffect } from 'react';
+import { signOut } from 'next-auth/react';
+import { Button } from '@tremor/react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import Link from 'next/link';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
-// usernameがあるならusernameを表示して、取れていないならその場合の処理を考える。
+
 export default function Navbar({ userFullname }: { userFullname : string | undefined}) {
-    // username を取得し、navbarで誰がログインしているかを表示する。
-    const pathname = usePathname();
-    // replace this with component.
-    let sample : string = "display Username here"
-    if (userFullname) {
-      sample = userFullname
-    }
-    const navigation = [
-      { name: 'Attendance', href: '/' },
-      { name: 'REGISTER', href: '/register' },
-      { name: 'LOGIN', href: '/login' },
-      { name: "MYPAGE", href: '/mypage' },
-    ];
+  const [userId, setUserId] = useState<number | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isLogin, setIsLogin] = useState(false);
+  const pathname = usePathname();
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+    setIsLogin(false)
+    setTimeout(() => {
+      toast.success("Logout successful");
+      window.location.replace("/login");
+    }, 1000);
+  };
+  useEffect(() => {
+    const getUserData = async () => {
+      const userEmail = await fetchUserEmail();
+      if (userEmail) {
+        const fetchedUserId = await fetchUserId(userEmail);
+        setUserId(fetchedUserId);
+        setIsLogin(true)
+        if (userEmail === "admin@mail.com") {
+          setIsAdmin(true);
+        }
+      }
+    };
+    getUserData();
+  }, []);
+
+  let displayName = userFullname ? userFullname : "";
+  console.log(displayName)
+
+  const navigation = [
+    { name: 'Attendance', href: '/' },
+    { name: 'REGISTER', href: '/register' },
+    { name: 'LOGIN', href: '/login' },
+    ...(isAdmin ? [{ name: "ADMIN", href: `/admin` }] : []),
+    ...(!isAdmin && userId ? [{ name: "MYPAGE", href: `/mypage/${userId}` }] : []),
+  ];
     return (
           <div className="shadow-sm bg-blue-100 border border-blue-200">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -47,8 +79,13 @@ export default function Navbar({ userFullname }: { userFullname : string | undef
                     ))}
                   </div>
                 </div>
-                <div className='pt-5'>
-                  {sample}
+                <div className='flex justify-center'>
+                  <div className='pt-5 pr-5'>
+                  {displayName}
+                  </div>              
+                  <div className='pt-3'>
+                  {isLogin ? <Button onClick={handleLogout}>Logout</Button> : <Button><Link href="/login">Login</Link></Button>}
+                </div>
                 </div>
               </div>
             </div>

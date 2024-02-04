@@ -19,14 +19,13 @@ export default function UserOutButton() {
     }
 
     fetchData();
-  }, []); // 空の依存配列を使って、コンポーネントのマウント時にのみ実行
+  }, []);
 
   const handleAttendanceOut = async () => {
     if (userId) {
       const isRecorded = await recordAttendanceOut(userId);
       if (!isRecorded) {
         toast.error("本日は退勤済みです。")
-        // ここでトースト通知などの処理を追加する
       } else {
         toast.success("退勤を記録しました。")
       }
@@ -35,7 +34,7 @@ export default function UserOutButton() {
   
 
   if (!userId) {
-    return null; // userId がない場合は何も表示しない
+    return null;
   }
   return (
     <div>

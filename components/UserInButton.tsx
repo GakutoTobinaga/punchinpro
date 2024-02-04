@@ -1,5 +1,4 @@
-// UserInButton コンポーネント
-"use client"; // これによりコンポーネントがクライアントサイドでのみ実行されることが保証されます
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@tremor/react";
@@ -20,14 +19,13 @@ export default function UserInButton() {
     }
 
     fetchData();
-  }, []); // 空の依存配列を使って、コンポーネントのマウント時にのみ実行
+  }, []);
 
   const handleAttendanceIn = async () => {
     if (userId) {
       const isRecorded = await recordAttendance(userId);
       if (!isRecorded) {
         toast.error("本日は出勤済みです。")
-        // ここでトースト通知などの処理を追加する
       } else {
         toast.success("出勤を記録しました。")
       }
@@ -36,7 +34,7 @@ export default function UserInButton() {
   
 
   if (!userId) {
-    return null; // userId がない場合は何も表示しない
+    return null;
   }
 
   return (
