@@ -95,7 +95,7 @@ export default function AttendanceDescription({
                 <div className="text-4xl">
                   <input
                     type="time"
-                    defaultValue={data.startTime}
+                    defaultValue={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
                   />
                 </div>
@@ -119,7 +119,7 @@ export default function AttendanceDescription({
                 <div className="text-4xl">
                   <input
                     type="time"
-                    defaultValue={data.endTime}
+                    defaultValue={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
                   />
                 </div>
