@@ -4,9 +4,7 @@ import { authOptions } from "@/auth/auth-config";
 // prisma
 import prisma from "./prisma";
 import { Session } from 'next-auth';
-import { use } from "react";
 import { parse, format } from 'date-fns';
-import { useAuth } from "@/contexts/AuthContext";
 
 // UserEmailを取得する関数.
 export const fetchUserEmail = async () => {
