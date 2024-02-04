@@ -47,7 +47,7 @@ export default function LoginSignin({ type }: { type: "login" | "register" }) {
             } else {
               router.refresh();
               toast.success("Login success")
-              window.location.replace(`/`);
+              window.location.replace(`/mypage`);
             }
           });
         } else {

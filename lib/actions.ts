@@ -5,6 +5,8 @@ import { authOptions } from "@/auth/auth-config";
 import prisma from "./prisma";
 import { Session } from 'next-auth';
 import { use } from "react";
+import { parse, format } from 'date-fns';
+import { useAuth } from "@/contexts/AuthContext";
 
 // UserEmailを取得する関数.
 export const fetchUserEmail = async () => {
@@ -34,7 +36,7 @@ export const fetchUserEmail = async () => {
   
     // userInfoがnullの場合、デフォルト値を返す
     if (!userInfo) {
-      return { firstname: "DefaultFirstName", lastname: "DefaultLastName" };
+      return { firstname: "", lastname: "" };
     }
   
     return userInfo;
@@ -163,6 +165,8 @@ export const displayUserAttendance = async () => {
         const userAllAttendance = await prisma.attendance.findMany({
           where: { userId: Number(userId) }, // 必要に応じて型変換
           select: {
+            id: true,
+            userId: true,
             date: true,
             startTime: true,
             endTime: true,
@@ -228,7 +232,7 @@ export const fetchAllUser2 = async () => {
 };
 
 // atendance x userIdが当てはまるものを表示
-async function findAttendanceRecord(userId: number, attendanceId: number) {
+export async function findAttendanceRecord(userId: number, attendanceId: number) {
   try {
     const attendanceRecord = await prisma.attendance.findFirst({
       where: {
@@ -249,4 +253,43 @@ async function findAttendanceRecord(userId: number, attendanceId: number) {
   }
 }
 
-export default findAttendanceRecord;
+export async function updateAttendanceRecord(userId: number, attendanceId: number, newStartTimeStr: string, newEndTimeStr: string) {
+  try {
+    // 既存の勤怠レコードを取得
+    const existingRecord = await prisma.attendance.findUnique({
+      where: {
+        id: attendanceId,
+        userId: userId,
+      },
+    });
+
+    if (!existingRecord) {
+      throw new Error('Attendance record not found');
+    }
+
+    // 既存の日付から年月日を取得
+    const existingDate = existingRecord.date;
+
+    // 新しい開始時刻と終了時刻のDateTimeオブジェクトを作成
+    const newStartTime = parse(`${format(existingDate, 'yyyy-MM-dd')} ${newStartTimeStr}`, 'yyyy-MM-dd HH:mm', new Date());
+    const newEndTime = parse(`${format(existingDate, 'yyyy-MM-dd')} ${newEndTimeStr}`, 'yyyy-MM-dd HH:mm', new Date());
+
+    // 勤怠レコードを更新
+    const updatedAttendanceRecord = await prisma.attendance.update({
+      where: {
+        id: attendanceId,
+        userId: userId,
+      },
+      data: {
+        startTime: newStartTime,
+        endTime: newEndTime,
+      },
+    });
+
+    console.log('Updated attendance record:', updatedAttendanceRecord);
+    return updatedAttendanceRecord;
+  } catch (error) {
+    console.error('Error updating attendance record:', error);
+    throw error;
+  }
+}

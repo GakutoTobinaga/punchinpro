@@ -2,9 +2,8 @@ import Link from 'next/link';
 import { Button, Card, Flex, Text, Title, Grid, Col } from '@tremor/react';
 import { comment } from 'postcss';
 import { displayUserAttendance2 } from '@/lib/actions';
-import UserAllAttendance from '@/components/UserAllAttendance';
 import AttendanceDescription from '@/components/AttendanceDescription';
-import findAttendanceRecord from '@/lib/actions';
+import { findAttendanceRecord } from '@/lib/actions';
 import type { AttendanceData } from '@/lib/types';
 import { fetchUserFullname } from '@/lib/actions';
 
@@ -13,9 +12,12 @@ export default async function Page({ params }: { params: { attendanceId: string 
   let sessionAndReportId: boolean = false
   const attendanceId = Number(params.attendanceId);
   const userId = Number(params.userId)
+  const ids = {userId, attendanceId}
+  console.log(userId)
+  console.log(attendanceId)
   const nameData = await fetchUserFullname();
   const fullname = nameData.firstname + " " + nameData.lastname
-  if (userId === 3) {
+  if (userId === 4) {
     isAdmin = true;
   }
 
@@ -33,7 +35,7 @@ export default async function Page({ params }: { params: { attendanceId: string 
       };
       return (
         <>
-        <AttendanceDescription username={fullname} data={attendanceProps} isAdmin={isAdmin}/>
+         <AttendanceDescription username={fullname} data={attendanceProps} isAdmin={isAdmin} ids={ids}/>
         </>
       )
   } else {

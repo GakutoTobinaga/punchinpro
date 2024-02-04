@@ -6,20 +6,22 @@ import UserAllAttendance from '@/components/UserAllAttendance';
 
 export default async function Page({ params }: { params: { userId: string } }) {
   let adminSessionToken = false;
-  let sessionAndReportId: boolean = false
   const id = Number(params.userId);
+
   if (id === 3) {
-    adminSessionToken = true;
+    console.log("admin detected.")
+    adminSessionToken = true
   }
   console.log("sessiohn new" + id)
   // 詳細ページ表示のために、レポートをidで検索
   const userAllAttendance : any = await displayUserAttendance2(id);
+  console.log(userAllAttendance)
   
   if (!userAllAttendance) {
     return <div>Loading...</div>;
   }
 
-  if (userAllAttendance.length > 0) {
+  if (adminSessionToken) {
     return (
       <div>
         <UserAllAttendance data={userAllAttendance} adminSessionToken={adminSessionToken}/>

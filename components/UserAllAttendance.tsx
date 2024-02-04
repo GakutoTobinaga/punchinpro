@@ -1,128 +1,72 @@
 import {
-    Card,
-    Table,
-    TableBody,
-    TableCell,
-    TableHeaderCell,
-    TableHead,
-    TableRow,
-    Text,
-    Title,
-    Divider,
-  } from "@tremor/react";
+  Card,
+  Table,
+  TableBody,
+  TableCell,
+  TableHeaderCell,
+  TableHead,
+  TableRow,
+  Title,
+} from "@tremor/react";
 import { Button } from "@tremor/react";
-  
-  type AttendanceData = {
-    date: string;
-    startTime: string;
-    endTime?: string;
-  };
-  
-  type AttendanceTableProps = {
-    data: AttendanceData[];
-  };
-  
-  const AttendanceTable = ({ data , adminSessionToken }: {data:any, adminSessionToken:boolean}) => {
-    if (adminSessionToken){
-          return (    
+import Link from "next/link";
+
+type AttendanceData = {
+  id: number;
+  userId: number;
+  date: string;
+  startTime: string;
+  endTime?: string;
+};
+
+type AttendanceTableProps = {
+  data: AttendanceData[];
+  adminSessionToken: boolean;
+};
+
+// 日付をフォーマットする関数
+const formatDateString = (dateString: string) => {
+  const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1; // 0から始まる月を1から始まる月に変換
+  const day = date.getDate();
+  const dayOfWeek = daysOfWeek[date.getDay()]; // 曜日を取得
+  return `${year}年${month}月${day}日（${dayOfWeek}）`; // フォーマットされた文字列を返す
+};
+
+const AttendanceTable = ({ data, adminSessionToken }: AttendanceTableProps) => {
+  return (
     <Card>
-      <Title>Attendance Data of</Title>
+      <Title>{adminSessionToken ? "Attendance Data" : "Your Attendance Data"}</Title>
       <Table className="mt-5">
         <TableHead>
           <TableRow>
             <TableHeaderCell>日付</TableHeaderCell>
-            <TableHeaderCell>Start Time</TableHeaderCell>
-            <TableHeaderCell>End Time</TableHeaderCell>
-            <TableHeaderCell>詳細</TableHeaderCell>
+            <TableHeaderCell>出勤時間</TableHeaderCell>
+            <TableHeaderCell>退勤時間</TableHeaderCell>
+            {adminSessionToken && <TableHeaderCell></TableHeaderCell>}
           </TableRow>
         </TableHead>
         <TableBody>
           {data.map((item, index) => (
             <TableRow key={index}>
               <TableCell>{formatDateString(item.date)}</TableCell>
-              {/* StartTimeを"00:00"の形式に変更 */}
-              <TableCell>
-                {typeof item.startTime === 'string' ? (
-                  new Date(item.startTime).toLocaleTimeString()
-                ) : (
-                  item.startTime instanceof Date ? item.startTime.toLocaleTimeString() : 'N/A'
-                )}
-              </TableCell>
-              <TableCell>
-                {typeof item.endTime === 'string' ? (
-                  new Date(item.endTime).toLocaleTimeString()
-                ) : (
-                  item.endTime instanceof Date ? item.endTime.toLocaleTimeString() : 'N/A'
-                )}
-              </TableCell>
-              <TableCell><Button size="xs">詳細へ</Button></TableCell>
+              <TableCell>{new Date(item.startTime).toLocaleTimeString('ja-JP')}</TableCell>
+              <TableCell>{item.endTime ? new Date(item.endTime).toLocaleTimeString('ja-JP') : '未定'}</TableCell>
+              {adminSessionToken && (
+                <TableCell>
+                  <Link href={`/mypage/${item.userId}/description/${item.id}`} passHref>
+                    <Button size="xs">詳細</Button>
+                  </Link>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </Card>
-    )
-    } else {
-      return (
-        <Card>
-        <Title>Your Attendance Data</Title>
-        <Table className="mt-5">
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>日付</TableHeaderCell>
-              <TableHeaderCell>Start Time</TableHeaderCell>
-              <TableHeaderCell>End Time</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell>{formatDateString(item.date)}</TableCell>
-                {/* StartTimeを"00:00"の形式に変更 */}
-                <TableCell>
-                  {typeof item.startTime === 'string' ? (
-                    new Date(item.startTime).toLocaleTimeString()
-                  ) : (
-                    item.startTime instanceof Date ? item.startTime.toLocaleTimeString() : 'N/A'
-                  )}
-                </TableCell>
-                <TableCell>
-                  {typeof item.endTime === 'string' ? (
-                    new Date(item.endTime).toLocaleTimeString()
-                  ) : (
-                    item.endTime instanceof Date ? item.endTime.toLocaleTimeString() : 'N/A'
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
-      )
+  );
+};
 
-    }
-
-  }
-
-  
-  export default AttendanceTable;
-  
-  // 日付をフォーマットする関数
-  function formatDateString(dateString: string) {
-    const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const dayOfWeek = daysOfWeek[date.getDay()];
-  
-    // フォーマットされた文字列を返す
-    return `${year}年${month}月${day}日（${dayOfWeek}）`;
-  }
-  
-  // 時間をフォーマットする関数
-  function formatTime(timeString: string) {
-    const [hours, minutes] = timeString.split(":");
-    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
-  }
-  
+export default AttendanceTable;

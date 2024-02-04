@@ -5,7 +5,6 @@ import { NextAuthProvider } from "@/components/provider";
 import { fetchUserFullname } from "@/lib/actions";
 import "./globals.css";
 import { Toaster } from 'react-hot-toast';
-import { setEngine } from "crypto";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,13 +25,13 @@ export default async function RootLayout({
   }
   return (
     <html lang="ja">
-      <NextAuthProvider>
-        <body className="font-mono">
-          <Toaster />
-          <Navbar userFullname={fullname}/>
-          {children}
-        </body>
-      </NextAuthProvider>
+        <NextAuthProvider>
+          <body className="font-mono">
+            <Toaster />
+            <Navbar userFullname={fullname}/>
+            {children}
+          </body>
+        </NextAuthProvider>
     </html>
   );
 }
