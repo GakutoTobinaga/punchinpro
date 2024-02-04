@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@tremor/react';
-import { getUserEmailFromSession, getUserIdByEmail, createTodayAttendanceRecord } from '@/lib/actions';
+import {
+  getUserEmailFromSession,
+  getUserIdByEmail,
+  createTodayAttendanceRecord,
+} from '@/lib/actions';
 import toast from 'react-hot-toast';
 
 export default function UserInButton() {

@@ -74,7 +74,9 @@ export const getUserNamesById = async (
   }
 };
 
-export const createTodayAttendanceRecord = async (userId: number): Promise<boolean> => {
+export const createTodayAttendanceRecord = async (
+  userId: number
+): Promise<boolean> => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -106,7 +108,9 @@ export const createTodayAttendanceRecord = async (userId: number): Promise<boole
   }
 };
 
-export const updateAttendanceWithEndTime = async (userId: number): Promise<boolean> => {
+export const updateAttendanceWithEndTime = async (
+  userId: number
+): Promise<boolean> => {
   try {
     const latestAttendance = await prisma.attendance.findMany({
       where: {

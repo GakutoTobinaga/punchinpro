@@ -1,4 +1,8 @@
-import { getUserAttendanceRecordsById, getUserNamesById, getUserEmailFromSession } from '@/lib/actions';
+import {
+  getUserAttendanceRecordsById,
+  getUserNamesById,
+  getUserEmailFromSession,
+} from '@/lib/actions';
 import UserAllAttendance from '@/components/UserAllAttendance';
 
 export default async function Page({ params }: { params: { userId: string } }) {
