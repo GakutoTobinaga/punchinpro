@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@tremor/react";
 import Clock from "./Clock";
 import UserInButton from "./UserInButton";
 import UserOutButton from "./UserOutButton";

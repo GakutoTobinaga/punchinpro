@@ -32,7 +32,6 @@ export default function LoginSignin({ type }: { type: "login" | "register" }) {
         e.preventDefault();
         setLoading(true);
         if (type === "login") {
-          // typeがloginで通ってるか
           signIn("credentials", {
             redirect: false,
             email: e.currentTarget.email.value,
@@ -43,11 +42,12 @@ export default function LoginSignin({ type }: { type: "login" | "register" }) {
             if (error) {
               // そのあとのエラー
               console.log("login failed")
+              toast.error("ログイン失敗")
               setLoading(false);
             } else {
               router.refresh();
-              toast.success("Login success")
-              window.location.replace(`/mypage`);
+              toast.success("ログイン成功")
+              window.location.replace(`/`);
             }
           });
         } else {
@@ -63,7 +63,7 @@ export default function LoginSignin({ type }: { type: "login" | "register" }) {
               lastname: e.currentTarget.lastname.value,
               email: e.currentTarget.email.value,
               password: e.currentTarget.password.value,
-            }), // [多分解決] POSTを送って登録されて、そこからJSONが帰ってこない
+            }),
           }).then(async (res) => {
             console.log("Register passed")
             setLoading(false);

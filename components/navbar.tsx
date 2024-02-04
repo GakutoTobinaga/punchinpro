@@ -12,20 +12,19 @@ import Link from 'next/link';
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
-// usernameがあるならusernameを表示して、取れていないならその場合の処理を考える。
+
 export default function Navbar({ userFullname }: { userFullname : string | undefined}) {
   const [userId, setUserId] = useState<number | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false)
   const [isLogin, setIsLogin] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const pathname = usePathname();
   const handleLogout = async () => {
     await signOut({ redirect: false });
     setIsLogin(false)
     setTimeout(() => {
-      // 遅延後にトースト通知を表示し、リダイレクトする
       toast.success("Logout successful");
       window.location.replace("/login");
-    }, 1000); // 例として1000ミリ秒（1秒）の遅延
+    }, 1000);
   };
   useEffect(() => {
     const getUserData = async () => {
@@ -34,19 +33,23 @@ export default function Navbar({ userFullname }: { userFullname : string | undef
         const fetchedUserId = await fetchUserId(userEmail);
         setUserId(fetchedUserId);
         setIsLogin(true)
+        if (userEmail === "admin@mail.com") {
+          setIsAdmin(true);
+        }
       }
     };
     getUserData();
   }, []);
 
   let displayName = userFullname ? userFullname : "";
+  console.log(displayName)
 
-  // ナビゲーション項目の定義、mypage項目はuserIdに基づいて動的に変更
   const navigation = [
     { name: 'Attendance', href: '/' },
     { name: 'REGISTER', href: '/register' },
     { name: 'LOGIN', href: '/login' },
-    ...(userId ? [{ name: "MYPAGE", href: `/mypage/${userId}` }] : []),
+    ...(isAdmin ? [{ name: "ADMIN", href: `/admin` }] : []),
+    ...(!isAdmin && userId ? [{ name: "MYPAGE", href: `/mypage/${userId}` }] : []),
   ];
     return (
           <div className="shadow-sm bg-blue-100 border border-blue-200">

@@ -1,4 +1,3 @@
-
 import { fetchUserFullname } from "@/lib/actions";
 import UserDashboard from "@/components/UserDashboard";
 export default async function Home() {

@@ -1,32 +1,26 @@
-import Link from 'next/link';
-import { Button, Card, Flex, Text, Title, Grid, Col } from '@tremor/react';
-import { comment } from 'postcss';
-import { displayUserAttendance2 } from '@/lib/actions';
 import AttendanceDescription from '@/components/AttendanceDescription';
 import { findAttendanceRecord } from '@/lib/actions';
 import type { AttendanceData } from '@/lib/types';
-import { fetchUserFullname } from '@/lib/actions';
+import { fetchUserEmail } from '@/lib/actions';
+import { fetchUserNamesById } from '@/lib/actions';
 
 export default async function Page({ params }: { params: { attendanceId: string , userId: string} }) {
   let isAdmin : boolean = false;
-  let sessionAndReportId: boolean = false
   const attendanceId = Number(params.attendanceId);
   const userId = Number(params.userId)
   const ids = {userId, attendanceId}
-  console.log(userId)
-  console.log(attendanceId)
-  const nameData = await fetchUserFullname();
-  const fullname = nameData.firstname + " " + nameData.lastname
-  if (userId === 4) {
-    isAdmin = true;
+  const nameData = await fetchUserNamesById(userId)
+  const fullname = nameData?.firstName + " " + nameData?.lastName
+  const email = await fetchUserEmail();
+  if (typeof email === 'string' && email === 'admin@mail.com') {
+    isAdmin = true
   }
-
   const record = await findAttendanceRecord(userId, attendanceId)
   if (record) {
     const startTime = record.startTime.toString();
     const endTime = record.endTime?.toString();
-    const startTimeFormatted = formatTime(startTime); // "09:00"
-    const endTimeFormatted = formatTime(endTime); // "未定"
+    const startTimeFormatted = formatTime(startTime);
+    const endTimeFormatted = formatTime(endTime);
     const formattedDate = formatDateString(startTime);
     const attendanceProps : AttendanceData= {
         date: formattedDate,
@@ -40,7 +34,11 @@ export default async function Page({ params }: { params: { attendanceId: string 
       )
   } else {
     console.log("cant fetch")
-    return <div>No attendance data available.</div>;
+    return (
+    <div className="bg-blue-100 text-blue-800 text-center p-4 rounded-lg shadow">
+      No attendance data available.
+    </div>
+  )
   }
 }
 function formatDateString(dateString: string) {
@@ -56,7 +54,7 @@ function formatDateString(dateString: string) {
   
   function formatTime(timeString?: string) {
     if (!timeString) {
-      return "未定"; // endTimeがnullまたはundefinedの場合
+      return "未定";
     }
     const date = new Date(timeString);
     const hours = date.getHours().toString().padStart(2, '0');

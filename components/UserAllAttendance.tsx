@@ -22,24 +22,24 @@ type AttendanceData = {
 type AttendanceTableProps = {
   data: AttendanceData[];
   adminSessionToken: boolean;
+  fullname: string,
 };
 
-// 日付をフォーマットする関数
 const formatDateString = (dateString: string) => {
   const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
   const date = new Date(dateString);
   const year = date.getFullYear();
-  const month = date.getMonth() + 1; // 0から始まる月を1から始まる月に変換
+  const month = date.getMonth() + 1;
   const day = date.getDate();
-  const dayOfWeek = daysOfWeek[date.getDay()]; // 曜日を取得
-  return `${year}年${month}月${day}日（${dayOfWeek}）`; // フォーマットされた文字列を返す
+  const dayOfWeek = daysOfWeek[date.getDay()];
+  return `${year}年${month}月${day}日（${dayOfWeek}）`;
 };
 
-const AttendanceTable = ({ data, adminSessionToken }: AttendanceTableProps) => {
+const AttendanceTable = async ({ data, adminSessionToken, fullname }: AttendanceTableProps) => {
   return (
     <Card>
-      <Title>{adminSessionToken ? "Attendance Data" : "Your Attendance Data"}</Title>
-      <Table className="mt-5">
+      <Title className="text-xl">{adminSessionToken ? `${fullname}` : "Your Attendance Data"}</Title>
+      <Table className="mt-10">
         <TableHead>
           <TableRow>
             <TableHeaderCell>日付</TableHeaderCell>

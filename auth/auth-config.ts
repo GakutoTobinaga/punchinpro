@@ -1,14 +1,12 @@
 import CredentialsProvider from "next-auth/providers/credentials";
-import GitHub from 'next-auth/providers/github';
 import prisma from "@/lib/prisma";
 import { compare } from "bcrypt";
 import { AuthOptions } from "next-auth";
-import { userAgentFromString } from "next/server";
 
 export const authOptions: AuthOptions = ({
   providers: [
     CredentialsProvider({
-      name: "Credentials", //name, 設定しなくてもOK
+      name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
@@ -31,7 +29,6 @@ export const authOptions: AuthOptions = ({
         if (!user || !(await compare(password, user.password))) {
           throw new Error("Invalid username or password");
         } 
-        console.log(user + "at auth config")
         return {...user, id: user.id.toString()};
       },
     }),
@@ -40,12 +37,10 @@ export const authOptions: AuthOptions = ({
   pages: {
     signIn: '/login',  // カスタムのサインインページ
   },
-  // 新しいSessionが追加できない
-  // sessionが空になっている
   callbacks: {
     async session({ session }) {
         if (session) {
-            console.log("we've got " + session.user?.email + " at session")
+            console.log(session.user?.email)
         } else {
             console.log("we haven't got session callbacks.")
         }

@@ -1,4 +1,4 @@
-"use client"// AllUserInfos.tsx
+"use client"
 import React from 'react';
 import Link from 'next/link';
 
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableRow,
   Title,
-  Button, // Buttonをインポート
+  Button,
 } from "@tremor/react";
 import type { UserData } from "@/lib/types";
 

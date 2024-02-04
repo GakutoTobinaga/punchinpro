@@ -23,8 +23,7 @@ export const fetchUserEmail = async () => {
     
     // userEmailがnullまたはundefinedの場合、デフォルト値を返す
     if (!userEmail) {
-      console.log("No email found");
-      return { firstname: "DefaultFirstName", lastname: "DefaultLastName" };
+      return { firstname: "", lastname: "" };
     }
   
     const userInfo = await prisma.user.findUnique({
@@ -52,6 +51,25 @@ export const fetchUserId = async (userEmail:string): Promise<number | null> => {
     }
     return null;
 }
+// ユーザーの ID から firstName と lastName を取得する関数
+export const fetchUserNamesById = async (userId: number): Promise<{ firstName: string; lastName: string; } | null> => {
+  const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+          firstname: true,
+          lastname: true,
+      }
+  });
+
+  if (user) {
+      return {
+          firstName: user.firstname,
+          lastName: user.lastname,
+      };
+  } else {
+      return null;
+  }
+};
 
 export const recordAttendance = async (userId: number): Promise<boolean> => {
   try {
@@ -158,25 +176,28 @@ export const displayUserAttendance = async () => {
       return undefined;
     }
   };
-  export const displayUserAttendance2 = async (userId : number) => {
+  export const displayUserAttendance2 = async (userId: number) => {
     try {
-        const userAllAttendance = await prisma.attendance.findMany({
-          where: { userId: Number(userId) }, // 必要に応じて型変換
-          select: {
-            id: true,
-            userId: true,
-            date: true,
-            startTime: true,
-            endTime: true,
-          }
-        });
-        return userAllAttendance;
+      const userAllAttendance = await prisma.attendance.findMany({
+        where: { userId: Number(userId) },
+        orderBy: {
+          date: 'asc',
+        },
+        select: {
+          id: true,
+          userId: true,
+          date: true,
+          startTime: true,
+          endTime: true,
+        }
+      });
+      return userAllAttendance;
     } catch (error) {
       console.error('Error in displayUserAttendance:', error);
       return undefined;
     }
   };
-
+  
 
 export const updateUserAttendance = async () => {
   const updateAttendance = await prisma.user.update({
