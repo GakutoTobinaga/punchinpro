@@ -5,8 +5,8 @@
  * @returns {string} - 生成されたメッセージ
  */
 export const generateMessage = (text: string): string => {
-    if (!text || text.includes('NG')) {
-      throw new Error('text is invalid');
-    }
-    return 'Hello, ' + text + '!';
-  };
+  if (!text || text.includes('NG')) {
+    throw new Error('text is invalid');
+  }
+  return 'Hello, ' + text + '!';
+};

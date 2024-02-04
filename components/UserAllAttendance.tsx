@@ -7,9 +7,9 @@ import {
   TableHead,
   TableRow,
   Title,
-} from "@tremor/react";
-import { Button } from "@tremor/react";
-import Link from "next/link";
+} from '@tremor/react';
+import { Button } from '@tremor/react';
+import Link from 'next/link';
 
 type AttendanceData = {
   id: number;
@@ -22,11 +22,11 @@ type AttendanceData = {
 type AttendanceTableProps = {
   data: AttendanceData[];
   adminSessionToken: boolean;
-  fullname: string,
+  fullname: string;
 };
 
 const formatDateString = (dateString: string) => {
-  const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
+  const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
   const date = new Date(dateString);
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
@@ -35,10 +35,16 @@ const formatDateString = (dateString: string) => {
   return `${year}年${month}月${day}日（${dayOfWeek}）`;
 };
 
-const AttendanceTable = async ({ data, adminSessionToken, fullname }: AttendanceTableProps) => {
+const AttendanceTable = async ({
+  data,
+  adminSessionToken,
+  fullname,
+}: AttendanceTableProps) => {
   return (
     <Card>
-      <Title className="text-xl">{adminSessionToken ? `${fullname}` : "Your Attendance Data"}</Title>
+      <Title className="text-xl">
+        {adminSessionToken ? `${fullname}` : 'Your Attendance Data'}
+      </Title>
       <Table className="mt-10">
         <TableHead>
           <TableRow>
@@ -52,11 +58,20 @@ const AttendanceTable = async ({ data, adminSessionToken, fullname }: Attendance
           {data.map((item, index) => (
             <TableRow key={index}>
               <TableCell>{formatDateString(item.date)}</TableCell>
-              <TableCell>{new Date(item.startTime).toLocaleTimeString('ja-JP')}</TableCell>
-              <TableCell>{item.endTime ? new Date(item.endTime).toLocaleTimeString('ja-JP') : '未定'}</TableCell>
+              <TableCell>
+                {new Date(item.startTime).toLocaleTimeString('ja-JP')}
+              </TableCell>
+              <TableCell>
+                {item.endTime
+                  ? new Date(item.endTime).toLocaleTimeString('ja-JP')
+                  : '未定'}
+              </TableCell>
               {adminSessionToken && (
                 <TableCell>
-                  <Link href={`/mypage/${item.userId}/description/${item.id}`} passHref>
+                  <Link
+                    href={`/mypage/${item.userId}/description/${item.id}`}
+                    passHref
+                  >
                     <Button size="xs">詳細</Button>
                   </Link>
                 </TableCell>

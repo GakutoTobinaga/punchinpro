@@ -1,83 +1,84 @@
-"use server"
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth/auth-config";
+'use server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/auth/auth-config';
 // prisma
-import prisma from "./prisma";
+import prisma from './prisma';
 import { Session } from 'next-auth';
 import { parse, format } from 'date-fns';
 
-// UserEmailを取得する関数.
-export const fetchUserEmail = async () => {
-    const session: Session | null | undefined = await getServerSession(authOptions);
-    // セッションが存在しない場合はundefinedを返す
-    if (session === undefined || session === null) {
-      return undefined;
-    } else {
-    // セッションからユーザーemailを取得して返す
-      return session.user?.email
-    }
-  };
-
-  export const fetchUserFullname = async (): Promise<{ firstname: string; lastname: string }> => {
-    const userEmail = await fetchUserEmail();
-    
-    // userEmailがnullまたはundefinedの場合、デフォルト値を返す
-    if (!userEmail) {
-      return { firstname: "", lastname: "" };
-    }
-  
-    const userInfo = await prisma.user.findUnique({
-      where: { email: userEmail },
-      select: { firstname: true, lastname: true },
-    });
-  
-    // userInfoがnullの場合、デフォルト値を返す
-    if (!userInfo) {
-      return { firstname: "", lastname: "" };
-    }
-  
-    return userInfo;
-  };
-
-export const fetchUserId = async (userEmail:string): Promise<number | null> => {
-    const userId = await prisma.user.findUnique({
-        where: { email: userEmail},
-        select: {
-          id: true,
-        }
-    });
-    if (userId){
-      return userId?.id
-    }
-    return null;
-}
-// ユーザーの ID から firstName と lastName を取得する関数
-export const fetchUserNamesById = async (userId: number): Promise<{ firstName: string; lastName: string; } | null> => {
-  const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-          firstname: true,
-          lastname: true,
-      }
-  });
-
-  if (user) {
-      return {
-          firstName: user.firstname,
-          lastName: user.lastname,
-      };
+export const getUserEmailFromSession = async () => {
+  const session: Session | null | undefined =
+    await getServerSession(authOptions);
+  if (session === undefined || session === null) {
+    return undefined;
   } else {
-      return null;
+    return session.user?.email;
   }
 };
 
-export const recordAttendance = async (userId: number): Promise<boolean> => {
-  try {
-    // 今日の日付を取得
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // 時刻を 00:00:00 に設定
+export const getUserFullNameByEmail = async (): Promise<{
+  firstname: string;
+  lastname: string;
+}> => {
+  const userEmail = await getUserEmailFromSession();
 
-    // 今日の出勤記録がすでに存在するかチェック
+  if (!userEmail) {
+    return { firstname: '', lastname: '' };
+  }
+
+  const userInfo = await prisma.user.findUnique({
+    where: { email: userEmail },
+    select: { firstname: true, lastname: true },
+  });
+
+  if (!userInfo) {
+    return { firstname: '', lastname: '' };
+  }
+
+  return userInfo;
+};
+
+export const getUserIdByEmail = async (
+  userEmail: string
+): Promise<number | null> => {
+  const userId = await prisma.user.findUnique({
+    where: { email: userEmail },
+    select: {
+      id: true,
+    },
+  });
+  if (userId) {
+    return userId?.id;
+  }
+  return null;
+};
+
+export const getUserNamesById = async (
+  userId: number
+): Promise<{ firstName: string; lastName: string } | null> => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      firstname: true,
+      lastname: true,
+    },
+  });
+
+  if (user) {
+    return {
+      firstName: user.firstname,
+      lastName: user.lastname,
+    };
+  } else {
+    return null;
+  }
+};
+
+export const createTodayAttendanceRecord = async (userId: number): Promise<boolean> => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const existingRecord = await prisma.attendance.findFirst({
       where: {
         userId: userId,
@@ -85,18 +86,15 @@ export const recordAttendance = async (userId: number): Promise<boolean> => {
       },
     });
 
-    // 既に記録がある場合は新しい記録を作成しない
     if (existingRecord) {
-      console.log(`User ${userId} は今日すでに出勤記録があります。`);
-      return false; // 既に記録があるため、false を返す
+      return false;
     }
 
-    // 出勤情報の記録
     await prisma.attendance.create({
       data: {
         userId: userId,
         date: today,
-        startTime: new Date(), // 現在の日時を startTime に設定
+        startTime: new Date(),
       },
     });
 
@@ -108,18 +106,16 @@ export const recordAttendance = async (userId: number): Promise<boolean> => {
   }
 };
 
-// outの処理
-export const recordAttendanceOut = async (userId: number): Promise<boolean> => {
+export const updateAttendanceWithEndTime = async (userId: number): Promise<boolean> => {
   try {
-    // 特定のユーザーの最新の出勤記録を検索
     const latestAttendance = await prisma.attendance.findMany({
       where: {
         userId: userId,
       },
       orderBy: {
-        startTime: 'desc', // startTime を基準に降順でソート
+        startTime: 'desc',
       },
-      take: 1, // 最初の1件だけを取得
+      take: 1,
     });
 
     if (latestAttendance.length === 0) {
@@ -127,79 +123,72 @@ export const recordAttendanceOut = async (userId: number): Promise<boolean> => {
     }
 
     const latestRecord = latestAttendance[0];
-    
-    // すでに退勤時刻が記録されているかチェック
+
     if (latestRecord.endTime) {
       console.log(`User ${userId} は既に退勤記録があります。`);
-      return false; // 既に退勤記録があるため、false を返す
+      return false;
     }
 
-    // 最新の出勤記録を更新
     await prisma.attendance.update({
       where: {
-        id: latestRecord.id, // 最新の記録のIDを使用
+        id: latestRecord.id,
       },
       data: {
-        endTime: new Date(), // 現在の日時を endTime に設定
+        endTime: new Date(),
       },
     });
 
-    console.log(`User ${userId} の退勤情報を記録しました。`);
     return true;
   } catch (error) {
-    console.error(`退勤情報の記録中にエラーが発生しました: ${error}`);
     return false;
   }
 };
 
-
-export const displayUserAttendance = async () => {
-    try {
-      const userEmail = await fetchUserEmail();
-      if (userEmail) {
-        const userId = await fetchUserId(userEmail);
-        console.log('UserID:', userId); // UserIDの確認
-        const userAllAttendance = await prisma.attendance.findMany({
-          where: { userId: Number(userId) }, // 必要に応じて型変換
-          select: {
-            date: true,
-            startTime: true,
-            endTime: true,
-          }
-        });
-        return userAllAttendance;
-      } else {
-        return undefined;
-      }
-    } catch (error) {
-      console.error('Error in displayUserAttendance:', error);
-      return undefined;
-    }
-  };
-  export const displayUserAttendance2 = async (userId: number) => {
-    try {
+export const getUserAttendanceRecordsByEmail = async () => {
+  try {
+    const userEmail = await getUserEmailFromSession();
+    if (userEmail) {
+      const userId = await getUserIdByEmail(userEmail);
       const userAllAttendance = await prisma.attendance.findMany({
         where: { userId: Number(userId) },
-        orderBy: {
-          date: 'asc',
-        },
         select: {
-          id: true,
-          userId: true,
           date: true,
           startTime: true,
           endTime: true,
-        }
+        },
       });
       return userAllAttendance;
-    } catch (error) {
-      console.error('Error in displayUserAttendance:', error);
+    } else {
       return undefined;
     }
-  };
-  
+  } catch (error) {
+    console.error('Error in displayUserAttendance:', error);
+    return undefined;
+  }
+};
+export const getUserAttendanceRecordsById = async (userId: number) => {
+  try {
+    const userAllAttendance = await prisma.attendance.findMany({
+      where: { userId: Number(userId) },
+      orderBy: {
+        date: 'asc',
+      },
+      select: {
+        id: true,
+        userId: true,
+        date: true,
+        startTime: true,
+        endTime: true,
+      },
+    });
+    return userAllAttendance;
+  } catch (error) {
+    console.error('Error in displayUserAttendance:', error);
+    return undefined;
+  }
+};
 
-export const updateUserAttendance = async () => {
+export const updateUserEmailById = async () => {
   const updateAttendance = await prisma.user.update({
     where: {
       email: 'viola@prisma.io',
@@ -207,15 +196,15 @@ export const updateUserAttendance = async () => {
     data: {
       email: 'Viola@gmail.com',
     },
-  })
+  });
   if (updateAttendance) {
-    return true
+    return true;
   } else {
-  return false
-}
-}
+    return false;
+  }
+};
 
-export const fetchAllUser = async () => {
+export const getAllAttendanceRecords = async () => {
   try {
     const allUser = await prisma.attendance.findMany({
       orderBy: {
@@ -231,7 +220,7 @@ export const fetchAllUser = async () => {
   }
 };
 
-export const fetchAllUser2 = async () => {
+export const getAllUsersWithNames = async () => {
   try {
     const allUser = await prisma.user.findMany({
       select: {
@@ -250,8 +239,10 @@ export const fetchAllUser2 = async () => {
   }
 };
 
-// atendance x userIdが当てはまるものを表示
-export async function findAttendanceRecord(userId: number, attendanceId: number) {
+export async function getAttendanceRecordById(
+  userId: number,
+  attendanceId: number
+) {
   try {
     const attendanceRecord = await prisma.attendance.findFirst({
       where: {
@@ -262,7 +253,7 @@ export async function findAttendanceRecord(userId: number, attendanceId: number)
         date: true,
         startTime: true,
         endTime: true,
-      }
+      },
     });
 
     return attendanceRecord;
@@ -272,9 +263,13 @@ export async function findAttendanceRecord(userId: number, attendanceId: number)
   }
 }
 
-export async function updateAttendanceRecord(userId: number, attendanceId: number, newStartTimeStr: string, newEndTimeStr: string) {
+export async function updateAttendanceTimesById(
+  userId: number,
+  attendanceId: number,
+  newStartTimeStr: string,
+  newEndTimeStr: string
+) {
   try {
-    // 既存の勤怠レコードを取得
     const existingRecord = await prisma.attendance.findUnique({
       where: {
         id: attendanceId,
@@ -286,14 +281,19 @@ export async function updateAttendanceRecord(userId: number, attendanceId: numbe
       throw new Error('Attendance record not found');
     }
 
-    // 既存の日付から年月日を取得
     const existingDate = existingRecord.date;
 
-    // 新しい開始時刻と終了時刻のDateTimeオブジェクトを作成
-    const newStartTime = parse(`${format(existingDate, 'yyyy-MM-dd')} ${newStartTimeStr}`, 'yyyy-MM-dd HH:mm', new Date());
-    const newEndTime = parse(`${format(existingDate, 'yyyy-MM-dd')} ${newEndTimeStr}`, 'yyyy-MM-dd HH:mm', new Date());
+    const newStartTime = parse(
+      `${format(existingDate, 'yyyy-MM-dd')} ${newStartTimeStr}`,
+      'yyyy-MM-dd HH:mm',
+      new Date()
+    );
+    const newEndTime = parse(
+      `${format(existingDate, 'yyyy-MM-dd')} ${newEndTimeStr}`,
+      'yyyy-MM-dd HH:mm',
+      new Date()
+    );
 
-    // 勤怠レコードを更新
     const updatedAttendanceRecord = await prisma.attendance.update({
       where: {
         id: attendanceId,

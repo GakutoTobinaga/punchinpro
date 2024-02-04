@@ -1,4 +1,4 @@
-import { generateMessage } from "@/components/test";
+import { generateMessage } from '@/components/test';
 
 describe('generateMessage', () => {
   it('should return 「Hello, World!」', () => {

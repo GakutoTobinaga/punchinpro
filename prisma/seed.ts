@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 
 // ランダムな時刻を生成する関数
 function randomTime(startHour: number, endHour: number, date: Date): Date {
-  const hour = Math.floor(Math.random() * (endHour - startHour + 1)) + startHour;
+  const hour =
+    Math.floor(Math.random() * (endHour - startHour + 1)) + startHour;
   const minute = Math.floor(Math.random() * 60);
   return setSeconds(setMinutes(setHours(date, hour), minute), 0);
 }

@@ -1,4 +1,4 @@
-"use client"
+'use client';
 import React from 'react';
 import Link from 'next/link';
 
@@ -12,8 +12,8 @@ import {
   TableRow,
   Title,
   Button,
-} from "@tremor/react";
-import type { UserData } from "@/lib/types";
+} from '@tremor/react';
+import type { UserData } from '@/lib/types';
 
 const AllUserInfos = ({ data }: { data: UserData[] }) => {
   return (
@@ -34,11 +34,10 @@ const AllUserInfos = ({ data }: { data: UserData[] }) => {
               <TableCell>{item.id}</TableCell>
               <TableCell>{item.firstname}</TableCell>
               <TableCell>{item.lastname}</TableCell>
-              <TableCell><Link href={`/mypage/${item.id}`}>
-                <Button size='xs'>
-                  出勤記録管理
-                </Button>
-              </Link>
+              <TableCell>
+                <Link href={`/mypage/${item.id}`}>
+                  <Button size="xs">出勤記録管理</Button>
+                </Link>
               </TableCell>
             </TableRow>
           ))}
