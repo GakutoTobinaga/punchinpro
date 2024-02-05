@@ -1,3 +1,4 @@
+'use client';
 import {
   Card,
   Table,
@@ -10,6 +11,8 @@ import {
 } from '@tremor/react';
 import { Button } from '@tremor/react';
 import Link from 'next/link';
+import { deleteAttendanceById } from '@/lib/actions';
+import toast from 'react-hot-toast';
 
 type AttendanceData = {
   id: number;
@@ -17,6 +20,7 @@ type AttendanceData = {
   date: string;
   startTime: string;
   endTime?: string;
+  energyLevel: number | null;
 };
 
 type AttendanceTableProps = {
@@ -35,11 +39,60 @@ const formatDateString = (dateString: string) => {
   return `${year}年${month}月${day}日（${dayOfWeek}）`;
 };
 
-const AttendanceTable = async ({
+const AttendanceTable = ({
   data,
   adminSessionToken,
   fullname,
 }: AttendanceTableProps) => {
+  const handleDeleteAttendance = async (
+    attendanceId: number,
+    userId: number
+  ) => {
+    if (window.confirm('この出勤記録を削除しますか？')) {
+      try {
+        await deleteAttendanceById(attendanceId);
+        toast.success('出勤記録が削除されました。');
+        window.location.href = `/mypage/${userId}`;
+      } catch (error) {
+        toast.error('出勤記録の削除に失敗しました。');
+      }
+    }
+  };
+  const getEnergyLevelDetails = (level: number | null) => {
+    switch (level) {
+      case 1:
+        return {
+          label: '絶不調',
+          color: 'bg-red-500 hover:bg-red-600 cursor-not-allowed',
+        };
+      case 2:
+        return {
+          label: '不調',
+          color: 'bg-orange-500 hover:bg-orange-600 cursor-not-allowed',
+        };
+      case 3:
+        return {
+          label: '普通',
+          color: 'bg-yellow-500 hover:bg-yellow-600 cursor-not-allowed',
+        };
+      case 4:
+        return {
+          label: '良好',
+          color: 'bg-blue-500 hover:bg-blue-600 cursor-not-allowed',
+        };
+      case 5:
+        return {
+          label: '絶好調',
+          color: 'bg-green-500 hover:bg-green-600 cursor-not-allowed',
+        };
+      default:
+        return {
+          label: '未登録',
+          color: 'bg-gray-500 hover:bg-gray-600 cursor-not-allowed',
+        };
+    }
+  };
+
   return (
     <Card>
       <Title className="text-xl">
@@ -51,6 +104,8 @@ const AttendanceTable = async ({
             <TableHeaderCell>日付</TableHeaderCell>
             <TableHeaderCell>出勤時間</TableHeaderCell>
             <TableHeaderCell>退勤時間</TableHeaderCell>
+            {adminSessionToken && <TableHeaderCell></TableHeaderCell>}
+            <TableHeaderCell></TableHeaderCell>
             {adminSessionToken && <TableHeaderCell></TableHeaderCell>}
           </TableRow>
         </TableHead>
@@ -74,6 +129,30 @@ const AttendanceTable = async ({
                   >
                     <Button size="xs">詳細</Button>
                   </Link>
+                </TableCell>
+              )}
+              <TableCell>
+                {/* getEnergyLevelDetails関数からラベルと色を取得 */}
+                {(() => {
+                  const { label, color } = getEnergyLevelDetails(
+                    item.energyLevel
+                  );
+                  return (
+                    <Button className={`text-white ${color}`} size="xs">
+                      {label}
+                    </Button>
+                  );
+                })()}
+              </TableCell>
+              {adminSessionToken && (
+                <TableCell>
+                  <Button
+                    size="xs"
+                    className="bg-red-500 hover:bg-red-500 cursor-pointer" // ホバー時の色変更を無効化
+                    onClick={() => handleDeleteAttendance(item.id, item.userId)}
+                  >
+                    削除
+                  </Button>
                 </TableCell>
               )}
             </TableRow>

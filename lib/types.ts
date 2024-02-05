@@ -31,3 +31,13 @@ export type AttendanceCorrectionType = {
   reviewedAt?: Date;
   reviewedBy?: number;
 };
+
+export type AttendanceRecord = {
+  id: number;
+  date: Date;
+  startTime: Date;
+  endTime: Date | null;
+  userId: number;
+};
+
+export type AttendanceRecordsResponse = AttendanceRecord[] | undefined;

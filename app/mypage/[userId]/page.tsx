@@ -4,6 +4,15 @@ import {
   getUserEmailFromSession,
 } from '@/lib/actions';
 import UserAllAttendance from '@/components/UserAllAttendance';
+export type AttendanceRecord = {
+  id: number;
+  date: Date;
+  startTime: Date;
+  endTime: Date | null;
+  userId: number;
+};
+
+export type AttendanceRecordsResponse = AttendanceRecord[] | undefined;
 
 export default async function Page({ params }: { params: { userId: string } }) {
   let adminSessionToken = false;
@@ -19,26 +28,13 @@ export default async function Page({ params }: { params: { userId: string } }) {
   if (!userAllAttendance) {
     return <div>NO USERS</div>;
   }
-
-  if (adminSessionToken) {
-    return (
-      <div>
-        <UserAllAttendance
-          data={userAllAttendance}
-          adminSessionToken={adminSessionToken}
-          fullname={fullname}
-        />
-      </div>
-    );
-  } else {
-    return (
-      <div>
-        <UserAllAttendance
-          data={userAllAttendance}
-          adminSessionToken={adminSessionToken}
-          fullname={fullname}
-        />
-      </div>
-    );
-  }
+  return (
+    <div>
+      <UserAllAttendance
+        data={userAllAttendance}
+        adminSessionToken={adminSessionToken}
+        fullname={fullname}
+      />
+    </div>
+  );
 }
