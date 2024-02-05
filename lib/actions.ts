@@ -99,17 +99,48 @@ export const createTodayAttendanceRecord = async (
         startTime: new Date(),
       },
     });
-
-    console.log(`User ${userId} の出勤情報を記録しました。`);
     return true;
   } catch (error) {
-    console.error(`出勤情報の記録中にエラーが発生しました: ${error}`);
     return false;
   }
 };
 
 export const updateAttendanceWithEndTime = async (
   userId: number
+): Promise<boolean> => {
+  try {
+    const latestAttendance = await prisma.attendance.findMany({
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        startTime: 'desc',
+      },
+      take: 1,
+    });
+
+    const latestRecord = latestAttendance[0];
+
+    if (latestRecord.endTime) {
+      return false;
+    }
+
+    await prisma.attendance.update({
+      where: {
+        id: latestRecord.id,
+      },
+      data: {
+        endTime: new Date(),
+      },
+    });
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+export const updateAttendanceWithEnergyLevel = async (
+  userId: number , energyLevel: number
 ): Promise<boolean> => {
   try {
     const latestAttendance = await prisma.attendance.findMany({
@@ -138,7 +169,7 @@ export const updateAttendanceWithEndTime = async (
         id: latestRecord.id,
       },
       data: {
-        endTime: new Date(),
+        energyLevel: energyLevel,
       },
     });
 
