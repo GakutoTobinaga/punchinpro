@@ -139,8 +139,10 @@ export const updateAttendanceWithEndTime = async (
     return false;
   }
 };
+
 export const updateAttendanceWithEnergyLevel = async (
-  userId: number , energyLevel: number
+  userId: number,
+  energyLevel: number
 ): Promise<boolean> => {
   try {
     const latestAttendance = await prisma.attendance.findMany({
@@ -153,16 +155,7 @@ export const updateAttendanceWithEnergyLevel = async (
       take: 1,
     });
 
-    if (latestAttendance.length === 0) {
-      throw new Error(`User ${userId} に関する出勤記録が見つかりません。`);
-    }
-
     const latestRecord = latestAttendance[0];
-
-    if (latestRecord.endTime) {
-      console.log(`User ${userId} は既に退勤記録があります。`);
-      return false;
-    }
 
     await prisma.attendance.update({
       where: {
@@ -215,6 +208,7 @@ export const getUserAttendanceRecordsById = async (userId: number) => {
         date: true,
         startTime: true,
         endTime: true,
+        energyLevel: true,
       },
     });
     return userAllAttendance;
@@ -347,5 +341,21 @@ export async function updateAttendanceTimesById(
   } catch (error) {
     console.error('Error updating attendance record:', error);
     throw error;
+  }
+}
+
+export async function deleteAttendanceById(
+  attendanceId: number
+): Promise<void> {
+  try {
+    const deletedAttendance = await prisma.attendance.delete({
+      where: {
+        id: attendanceId,
+      },
+    });
+    console.log('Deleted attendance:', deletedAttendance);
+  } catch (error) {
+    console.error('Error deleting attendance:', error);
+    throw new Error('Failed to delete attendance record.');
   }
 }
