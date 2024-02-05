@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { updateAttendanceTimesById } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { getUserAttendanceRecordsById } from '@/lib/actions';
 
 export default function AttendanceDescription({
   username,
@@ -21,21 +22,23 @@ export default function AttendanceDescription({
   const [startTime, setStartTime] = useState(data.startTime);
   const [endTime, setEndTime] = useState(data.endTime || '');
   const router = useRouter();
+
   const handleTimeAdjustmentClick = () => {
     setIsEditing(!isEditing);
   };
 
-  const handleConfirmClick = async () => {
-    await updateAttendanceTimesById(
-      ids.userId,
-      ids.attendanceId,
-      startTime,
-      endTime
-    );
-    setIsEditing(false);
-
-    router.push(`/mypage/${ids.userId}`);
-    toast.success('データを更新しました。');
+  const handleSubmit = async (e:any) => {
+    e.preventDefault();
+    console.log(startTime, endTime); // 確認用ログ
+    const success = await updateAttendanceTimesById(ids.userId, ids.attendanceId, startTime, endTime);
+    if (success) {
+      toast.success('データを更新しました。');
+      setIsEditing(false); // 編集モードを終了
+      // データの再取得やUIの更新が必要な場合はここで実行
+      // router.push(`/attendance/${ids.userId}`); // 必要に応じて適切なパスに調整
+    } else {
+      toast.error('データの更新に失敗しました。');
+    }
   };
   return (
     <div
@@ -46,28 +49,28 @@ export default function AttendanceDescription({
           <div>勤怠記録詳細</div>
           <h3 className="text-xl font-semibold">{data.date}</h3>
           <h3>{username}</h3>
-          {isAdmin ? (
+          {isAdmin && (
             <Button
               size="xs"
               onClick={handleTimeAdjustmentClick}
               disabled={isEditing}
-              className={`${isEditing ? 'bg-gray-400 text-white hover:bg-gray-400 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-gray-300'} disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500`}
+              className={`${
+                isEditing
+                  ? 'bg-gray-400 text-white hover:bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              } disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500`}
             >
               修正
             </Button>
-          ) : (
-            <></>
           )}
         </div>
-        <div className="ここからフォーム">
-          {!isEditing ? (
-            <form className="flex flex-col space-y-4 bg-blue-50 px-4 py-8 sm:px-16">
-              <div className="flex flex-col items-center justify-center">
-                <div className="text-4xl">出勤時間</div>
-
-                <div className="text-4xl">{data.startTime}</div>
-                <div>
-                  <svg
+        {!isEditing ? (
+          <div className="flex flex-col space-y-4 bg-blue-50 px-4 py-8 sm:px-16">
+            <div className="flex flex-col items-center justify-center">
+              <div className="text-4xl">出勤時間</div>
+              <div className="text-4xl">{startTime}</div>
+              <div>
+              <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -81,26 +84,24 @@ export default function AttendanceDescription({
                       d="m19.5 8.25-7.5 7.5-7.5-7.5"
                     />
                   </svg>
-                </div>
-                <div className="text-4xl">退勤時間</div>
-
-                <div className="text-4xl">{data.endTime}</div>
               </div>
-            </form>
-          ) : (
-            <form className="flex flex-col space-y-4 bg-blue-50 px-4 py-8 sm:px-16">
-              <div className="flex flex-col items-center justify-center">
-                <div className="text-4xl">出勤時間を修正</div>
-
-                <div className="text-4xl">
+              <div className="text-4xl">退勤時間</div>
+              <div className="text-4xl">{endTime}</div>
+            </div>
+          </div>
+        ) : (
+          <form className="flex flex-col space-y-4 bg-blue-50 px-4 py-8 sm:px-16" onSubmit={handleSubmit}>
+            <div className="flex flex-col items-center justify-center">
+              <div className="text-4xl">出勤時間を修正</div>
+              <div className="text-4xl">
                   <input
                     type="time"
                     defaultValue={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
                   />
                 </div>
-                <div>
-                  <svg
+              <div>
+              <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -114,23 +115,23 @@ export default function AttendanceDescription({
                       d="m19.5 8.25-7.5 7.5-7.5-7.5"
                     />
                   </svg>
-                </div>
-                <div className="text-4xl">退勤時間を修正</div>
-                <div className="text-4xl">
+              </div>
+              <div className="text-4xl">退勤時間を修正</div>
+              <div className="text-4xl">
                   <input
                     type="time"
                     defaultValue={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
                   />
                 </div>
-              </div>
-              <Button size="xs" onClick={handleConfirmClick}>
-                確定
-              </Button>
-            </form>
-          )}
-        </div>
+            </div>
+            <Button type="submit" size="xs">
+              確定
+            </Button>
+          </form>
+        )}
       </div>
     </div>
   );
+  
 }

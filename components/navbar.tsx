@@ -45,7 +45,6 @@ export default function Navbar({
   }, []);
 
   const displayName = userFullname ? userFullname : '';
-  console.log(displayName);
 
   const navigation = [
     { name: 'Attendance', href: '/' },

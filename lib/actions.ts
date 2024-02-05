@@ -170,6 +170,7 @@ export const getUserAttendanceRecordsByEmail = async () => {
     return undefined;
   }
 };
+
 export const getUserAttendanceRecordsById = async (userId: number) => {
   try {
     const userAllAttendance = await prisma.attendance.findMany({
@@ -257,6 +258,7 @@ export async function getAttendanceRecordById(
         date: true,
         startTime: true,
         endTime: true,
+        energyLevel: true,
       },
     });
 

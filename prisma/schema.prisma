@@ -23,19 +23,18 @@ model User {
 }
 
 model Attendance {
-  id         Int      @id @default(autoincrement())
-  date       DateTime
-  startTime  DateTime
-  endTime    DateTime?
-  breaks     Int      @default(0)
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  correctionRequested Boolean  @default(false)
-  attendanceCorrection       AttendanceCorrection[]
-
+  id                   Int                  @id @default(autoincrement())
+  date                 DateTime
+  startTime            DateTime
+  endTime              DateTime?
+  breaks               Int                  @default(0)
+  userId               Int
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  correctionRequested  Boolean              @default(false)
+  attendanceCorrection AttendanceCorrection[]
+  energyLevel          Int?                 
   @@map("attendances")
 }
-
 model AttendanceCorrection {
   id                  Int       @id @default(autoincrement())
   userId              Int

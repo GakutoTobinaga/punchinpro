@@ -1,20 +1,21 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import AllUserInfos from '@/components/AllUserInfos';
+import LoadingDots from '@/components/loading/loading-dots';
 import { getAllUsersWithNames } from '@/lib/actions';
 import toast from 'react-hot-toast';
 import type { UserData } from '@/lib/types';
 import { getUserEmailFromSession } from '@/lib/actions';
 
 export default function AdminPage() {
-  const [userAllDatas2, setUserAllDatas2] = useState<UserData[]>([]);
+  const [userAllDatas, setUserAllDatas] = useState<UserData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
   const fetchData = async () => {
     try {
-      setIsLoading(true);
-      const data2: UserData[] = await getAllUsersWithNames();
-      setUserAllDatas2(data2);
+      const data: UserData[] = await getAllUsersWithNames();
+      setUserAllDatas(data);
       toast.success('Data has been fetched');
     } catch (error) {
       toast.error('Failed to fetch data.');
@@ -37,19 +38,21 @@ export default function AdminPage() {
     fetchDataAndCheckAdmin();
   }, []);
 
-  if (isAdmin) {
-    return (
-      <div>
-        <div>
-          <AllUserInfos data={userAllDatas2} />
-        </div>
-      </div>
-    );
-  } else {
+  if (!isAdmin) {
     return (
       <div className="bg-red-100 text-red-800 text-center p-4 rounded-md">
         You have no token to access.
       </div>
     );
   }
+
+  if (isLoading) {
+    return <LoadingDots />;
+  }
+
+  return (
+    <div>
+      <AllUserInfos data={userAllDatas} />
+    </div>
+  );
 }
