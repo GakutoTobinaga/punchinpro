@@ -24,7 +24,7 @@ function MoodSelector({ userId }: { userId: number }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center pt-20 pb-20 h-200 bg-gray-50">
+    <div className="flex flex-col items-center justify-center pt-2 pb-20 h-200">
       <div className="z-10 w-screen max-w-md overflow-hidden rounded-2xl border border-blue-200 shadow-xl bg-blue-50">
         <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-blue-100 px-4 py-6 pt-8 text-center sm:px-16">
           <div className="text-xl flex h-10 items-center justify-center">
