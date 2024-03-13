@@ -13,6 +13,7 @@ import { Button } from '@tremor/react';
 import Link from 'next/link';
 import { deleteAttendanceById } from '@/lib/actions';
 import toast from 'react-hot-toast';
+import { LineChartGraph } from './LineChartGraph';
 
 type AttendanceData = {
   id: number;
@@ -44,6 +45,11 @@ const AttendanceTable = ({
   adminSessionToken,
   fullname,
 }: AttendanceTableProps) => {
+  const energyLevels = data.map(item => ({
+    "元気レベル": item.energyLevel !== null ? item.energyLevel : 0,
+    date: formatDateString(item.date)
+  }));
+  
   const handleDeleteAttendance = async (
     attendanceId: number,
     userId: number
@@ -94,6 +100,8 @@ const AttendanceTable = ({
   };
 
   return (
+    <>
+    <LineChartGraph energyLevels={energyLevels}/>
     <Card>
       <Title className="text-xl">
         {adminSessionToken ? `${fullname}` : 'Your Attendance Data'}
@@ -160,6 +168,7 @@ const AttendanceTable = ({
         </TableBody>
       </Table>
     </Card>
+    </>
   );
 };
 
