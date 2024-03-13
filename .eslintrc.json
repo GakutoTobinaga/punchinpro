@@ -1,3 +1,10 @@
 {
-  "extends": ["next", "next/core-web-vitals"]
+  "extends": ["eslint:recommended"],
+  "plugins": [],
+  "parserOptions": {},
+  "env": { "browser": true },
+  "globals": {},
+  "rules": {
+    "indent": ["error", 2] // rule名:[]でオプション設定
+  }
 }
