@@ -69,27 +69,27 @@ const AttendanceTable = ({
       case 1:
         return {
           label: '絶不調',
-          color: 'bg-red-500 hover:bg-red-600 cursor-not-allowed',
+          color: 'bg-red-500 border-red-500 hover:bg-red-600 border-red-600 cursor-not-allowed',
         };
       case 2:
         return {
           label: '不調',
-          color: 'bg-orange-500 hover:bg-orange-600 cursor-not-allowed',
+          color: 'bg-orange-500 border-orange-500 hover:bg-orange-600 border-orange-600 cursor-not-allowed',
         };
       case 3:
         return {
           label: '普通',
-          color: 'bg-yellow-500 hover:bg-yellow-600 cursor-not-allowed',
+          color: 'bg-yellow-500 border-yellow-500 hover:bg-yellow-600 border-yellow-600 cursor-not-allowed',
         };
       case 4:
         return {
           label: '良好',
-          color: 'bg-blue-500 hover:bg-blue-600 cursor-not-allowed',
+          color: 'bg-blue-500 border-blue-500 hover:bg-blue-600 border-blue-600 cursor-not-allowed',
         };
       case 5:
         return {
           label: '絶好調',
-          color: 'bg-green-500 hover:bg-green-600 cursor-not-allowed',
+          color: 'bg-green-500 border-green-500 hover:bg-green-600 border-green-600 cursor-not-allowed',
         };
       default:
         return {
@@ -156,7 +156,7 @@ const AttendanceTable = ({
                 <TableCell>
                   <Button
                     size="xs"
-                    className="bg-red-500 hover:bg-red-500 cursor-pointer" // ホバー時の色変更を無効化
+                    className="bg-red-500 hover:bg-red-500 border-red-500 cursor-pointer" // ホバー時の色変更を無効化
                     onClick={() => handleDeleteAttendance(item.id, item.userId)}
                   >
                     削除
